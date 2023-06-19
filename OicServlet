@@ -94,6 +94,24 @@ public class OicServlet extends HttpServlet {
 			RequestDispatcher dispatcher = request.getRequestDispatcher("BookingReport.jsp");
 			dispatcher.forward(request, response);
 		}
+		else if(url.equals("/detailedView")){
+			String appNo = request.getParameter("hdnRefNo");
+					
+			
+
+				Applicant applicant;
+				try {
+					applicant = applicantDao.getApplicationById(appNo);
+					request.setAttribute("applicant", applicant);
+					RequestDispatcher dispatcher = request.getRequestDispatcher("DetailedView.jsp");
+					dispatcher.forward(request, response);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			
+			
+		}
 	}
 
 }
