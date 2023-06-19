@@ -1,0 +1,99 @@
+package com.spacebooking.controller;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.List;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.spacebooking.dao.ApplicantDao;
+import com.spacebooking.dao.OicDao;
+import com.spacebooking.model.Applicant;
+import com.spacebooking.service.OicService;
+
+@WebServlet(name = "OicServlet", urlPatterns = { "/pendingList", "/reject",
+		"/approval", "/report" })
+public class OicServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private OicDao oicDao;
+	private ApplicantDao applicantDao;
+	private OicService oicService;
+
+	public OicServlet() {
+		super();
+		this.oicDao = new OicDao();
+		this.applicantDao = new ApplicantDao();
+		this.oicService = new OicService();
+	}
+
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+
+	}
+
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		String url = request.getServletPath();
+
+		String status = "In-Progress";
+
+		if (url.equals("/pendingList")) {
+
+			try {
+				List<Applicant> pendingStatusList = oicDao.getApplicationByApprovalStatus(status);
+				request.setAttribute("pendingStatusList", pendingStatusList);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("BookingApproval.jsp");
+				dispatcher.forward(request, response);
+			} catch (SQLException e) {
+
+				e.printStackTrace();
+			}
+		} else if (url.equals("/reject")) {
+			String appNo = request.getParameter("hdnRefNo");
+			String oicComments = request.getParameter("nmComments");
+
+			Applicant applicant;
+			try {
+
+				applicant = applicantDao.getApplicationById(appNo);
+				applicant.setOicComment(oicComments);
+				oicService.updateRejectedStatus(applicant);
+				List<Applicant> pendingStatusList = oicDao.getApplicationByApprovalStatus(status);
+				request.setAttribute("pendingStatusList", pendingStatusList);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("BookingApproval.jsp");
+				dispatcher.forward(request, response);
+			} catch (SQLException | ParseException e) {
+				e.printStackTrace();
+			}
+
+		} else if (url.equals("/approval")) {
+			String appNo = request.getParameter("hdnRefNo");
+			try {
+				Applicant applicant = applicantDao.getApplicationById(appNo);
+				oicService.updateApprovalStatus(applicant);
+				List<Applicant> pendingStatusList = oicDao.getApplicationByApprovalStatus(status);
+				request.setAttribute("pendingStatusList", pendingStatusList);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("BookingApproval.jsp");
+				dispatcher.forward(request, response);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		} else if (url.equals("/report")) {
+			int page = 1;
+			// int recordsPerPage = 10;
+			if (request.getParameter("page") != null)
+				page = Integer.parseInt(request.getParameter("page"));
+			List<Applicant> allBookingList = applicantDao.getAllBookingList();
+			request.setAttribute("allBookingList", allBookingList);
+			RequestDispatcher dispatcher = request.getRequestDispatcher("BookingReport.jsp");
+			dispatcher.forward(request, response);
+		}
+	}
+
+}
