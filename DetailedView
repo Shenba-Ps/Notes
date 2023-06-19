@@ -14,68 +14,64 @@
 			<tr>
 				<th>Application Number:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" /></td>
+					value="<c:out value='${applicant.applicationNumber}' />" /></td>
 			</tr>
 			<tr>
 				<th>Name:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" /></td>
+					value="<c:out value='${applicant.name}' />" /></td>
 			</tr>
 
 			<tr>
 				<th>Address:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" /></td>
+					value="<c:out value='${applicant.address}' />" /></td>
 			</tr>
 
-			<tr>
-				<th>Address:</th>
-				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" /></td>
-			</tr>
+		
 
 			<tr>
 				<th>NRIC:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" /></td>
+					value="<c:out value='${applicant.nricNumber}' />" /></td>
 			</tr>
 
 			<tr>
 				<th>Email:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.email}' />" />
 				</td>
 			</tr>
 			<tr>
-				<th>User Trade:</th>
+				<th>Usage Trade:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.usageTrade}' />" />
 				</td>
 			</tr>
 
 			<tr>
-				<th>User Trade Others:</th>
+				<th>Usage Trade Others:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.usageTradeOthers}' />" />
 				</td>
 			</tr>
 
 			<tr>
 				<th>Home:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.homePhoneNumber}' />" />
 				</td>
 			</tr>
 			<tr>
 				<th>Office:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.officePhoneNumber}' />" />
 				</td>
 			</tr>
 			<tr>
 				<th>Hand:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.handPhoneNumber}' />" />
 				</td>
 			</tr>
 
@@ -83,7 +79,7 @@
 			<tr>
 				<th>Total Amount:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.totalAmount}' />" />
 				</td>
 			</tr>
 
@@ -91,28 +87,28 @@
 			<tr>
 				<th>Booking Date:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.bookingDate}' />" />
 				</td>
 			</tr>
 
 			<tr>
 				<th>Booked Slots:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.slectedSlots}' />" />
 				</td>
 			</tr>
 
 			<tr>
 				<th>Approval Status:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.approvalStatus}' />" />
 				</td>
 			</tr>
 
 			<tr>
 				<th>Number Of Slots Booked:</th>
 				<td><input type="text" name="title" size="45"
-					value="<c:out value='${book.title}' />" />
+					value="<c:out value='${applicant.noOfDaysBooked}' />" />
 				</td>
 			</tr>
 
@@ -123,6 +119,5 @@
 
 
 	</form>
-
 </body>
 </html>
