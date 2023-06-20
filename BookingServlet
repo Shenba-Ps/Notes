@@ -60,9 +60,10 @@ public class BookingServlet extends HttpServlet {
 		String strAction = objConvertJSON.CJSON_S(objBodyData, "Action").toString();
 	 if (strAction.equals("Save Slots")) {
 
-
+         String applicationNumber =  bookingService.createApplicationNumber();
 			JSONArray jaBookingList = (JSONArray) objBodyData.get("BookingData");
 			for (int i = 0; i < jaBookingList.size(); i++) {
+				applicantObj.setApplicationNumber(applicationNumber);
 				applicantObj.setName(objConvertJSON.CJSON_S(objBodyData, "Name"));
 				applicantObj.setAddress(objConvertJSON.CJSON_S(objBodyData, "Address"));
 				applicantObj.setNricNumber(objConvertJSON.CJSON_S(objBodyData, "NRIC"));
@@ -242,4 +243,4 @@ public class BookingServlet extends HttpServlet {
 		response.getWriter().write(objResponseData.toString());
 
 	}
-}
+} 
