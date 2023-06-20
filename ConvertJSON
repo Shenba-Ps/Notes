@@ -10,3 +10,34 @@ public class ConvertJSON {
 		return jaData;
 	}
 }
+
+
+
+	public void createAppNumber(String appNumber, Date createdDate) {
+		String insertQuery = "insert into app.application_no(application_number,created_date) values(?,?)";
+		int result=o;
+		try {
+			connection = new DbConnection().getConnection();
+			preparedStatement = connection.prepareStatement(insertQuery);
+			preparedStatement.setString(1, appNumber);	
+			preparedStatement.setDate(2, createdDate);
+			result = preparedStatement.executeUpdate();
+		if (result > 0) {
+			System.out.println("Successfully inserted into table");
+		} else {
+			System.out.println("Error while inserting into table");
+		
+	}
+		}catch (SQLException e) {
+		
+		e.printStackTrace();
+	}finally {
+		try {
+			connection.close();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			System.out.println(e);
+			e.printStackTrace();
+		}
+
+	}
