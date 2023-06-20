@@ -1,0 +1,38 @@
+package com.spaceBooking.service;
+
+import java.sql.Timestamp;
+import java.util.Calendar;
+
+import com.spaceBooking.dao.BookingDao;
+import com.spaceBooking.model.Applicant;
+
+public class BookingService {
+
+private BookingDao bookingDao;
+	
+	
+	public BookingService() {
+		super();
+		this.bookingDao = new BookingDao();
+	}
+
+	long millis = System.currentTimeMillis();
+	java.sql.Date createdDate = new java.sql.Date(millis);
+	Calendar calendar = Calendar.getInstance();
+	Timestamp timesatmpObj = new Timestamp(calendar.getTimeInMillis());
+	public String createApplicationNumber(){
+			
+		long count = bookingDao.getCount();
+		long countVar = count + 1;
+		String appNumber = "Space"+"-"+createdDate+"-"+countVar;
+		bookingDao.createAppNumber(appNumber,createdDate);
+		return appNumber;
+		
+	}
+	
+	public void saveBookingDetailService(Applicant applicantObj){
+		String appStatus = "In-Progress";
+		applicantObj.setApprovalStatus(appStatus);
+		bookingDao.saveBooking(applicantObj,createdDate,timesatmpObj);
+	}
+}
