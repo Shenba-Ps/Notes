@@ -1,0 +1,12 @@
+public class ConvertJSON {
+
+	public String CJSON_S(JSONObject objParam,String strKey) {
+		String strData = objParam.get(strKey).toString();
+		return strData;
+	}
+	
+	public JSONArray CJSON_JA(JSONObject objParam,String strKey) {
+		JSONArray jaData = (JSONArray)objParam.get(strKey);
+		return jaData;
+	}
+}
