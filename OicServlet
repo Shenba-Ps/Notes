@@ -1,4 +1,4 @@
-package com.spacebooking.controller;
+package com.spaceBooking.Controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -12,29 +12,30 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.spacebooking.dao.ApplicantDao;
-import com.spacebooking.dao.OicDao;
-import com.spacebooking.model.Applicant;
-import com.spacebooking.service.OicService;
+import com.spaceBooking.dao.BookingDao;
+import com.spaceBooking.dao.OicDao;
+import com.spaceBooking.model.Applicant;
+import com.spaceBooking.service.OicService;
 
 @WebServlet(name = "OicServlet", urlPatterns = { "/pendingList", "/reject",
-		"/approval", "/report" })
+		"/approval", "/report", "/detailedView" })
 public class OicServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private OicDao oicDao;
-	private ApplicantDao applicantDao;
+	private BookingDao bookingDao;
 	private OicService oicService;
 
 	public OicServlet() {
 		super();
 		this.oicDao = new OicDao();
-		this.applicantDao = new ApplicantDao();
+		this.bookingDao = new BookingDao();
 		this.oicService = new OicService();
 	}
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
+		doPost(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request,
@@ -46,71 +47,91 @@ public class OicServlet extends HttpServlet {
 		if (url.equals("/pendingList")) {
 
 			try {
-				List<Applicant> pendingStatusList = oicDao.getApplicationByApprovalStatus(status);
+				int page = 1;
+				int recordsPerPage = 5;
+				if (request.getParameter("page") != null)
+					page = Integer.parseInt(request.getParameter("page"));
+				List<Applicant> pendingStatusList = oicDao.getApplicationByApprovalStatusPagination((page - 1) * recordsPerPage,
+						recordsPerPage,status);
+				int noOfRecords = oicDao.getNumberOfRows();
+				System.out.println(noOfRecords);
+				int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
+				request.setAttribute("noOfPages", noOfPages);
+				request.setAttribute("currentPage", page);
 				request.setAttribute("pendingStatusList", pendingStatusList);
-				RequestDispatcher dispatcher = request.getRequestDispatcher("BookingApproval.jsp");
+				RequestDispatcher dispatcher = request
+						.getRequestDispatcher("BookingApprovalTest.jsp");
 				dispatcher.forward(request, response);
 			} catch (SQLException e) {
 
 				e.printStackTrace();
 			}
 		} else if (url.equals("/reject")) {
-			String appNo = request.getParameter("hdnRefNo");
-			String oicComments = request.getParameter("nmComments");
-
+			String appNo = request.getParameter("applicationNumber");
+			String oicComments = request.getParameter("nmReason");
 			Applicant applicant;
 			try {
 
-				applicant = applicantDao.getApplicationById(appNo);
+				applicant = bookingDao.getApplicationById(appNo);
 				applicant.setOicComment(oicComments);
 				oicService.updateRejectedStatus(applicant);
-				List<Applicant> pendingStatusList = oicDao.getApplicationByApprovalStatus(status);
+				List<Applicant> pendingStatusList = oicDao
+						.getApplicationByApprovalStatus(status);
 				request.setAttribute("pendingStatusList", pendingStatusList);
-				RequestDispatcher dispatcher = request.getRequestDispatcher("BookingApproval.jsp");
+				RequestDispatcher dispatcher = request
+						.getRequestDispatcher("BookingApproval.jsp");
 				dispatcher.forward(request, response);
 			} catch (SQLException | ParseException e) {
 				e.printStackTrace();
 			}
 
 		} else if (url.equals("/approval")) {
-			String appNo = request.getParameter("hdnRefNo");
+			String appNo = request.getParameter("applicationNumber");
+			System.out.println(appNo);
 			try {
-				Applicant applicant = applicantDao.getApplicationById(appNo);
+				Applicant applicant = bookingDao.getApplicationById(appNo);
 				oicService.updateApprovalStatus(applicant);
-				List<Applicant> pendingStatusList = oicDao.getApplicationByApprovalStatus(status);
+				List<Applicant> pendingStatusList = oicDao
+						.getApplicationByApprovalStatus(status);
 				request.setAttribute("pendingStatusList", pendingStatusList);
-				RequestDispatcher dispatcher = request.getRequestDispatcher("BookingApproval.jsp");
+				RequestDispatcher dispatcher = request
+						.getRequestDispatcher("BookingApproval.jsp");
 				dispatcher.forward(request, response);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		} else if (url.equals("/report")) {
+
 			int page = 1;
-			// int recordsPerPage = 10;
+			int recordsPerPage =10;
 			if (request.getParameter("page") != null)
 				page = Integer.parseInt(request.getParameter("page"));
-			List<Applicant> allBookingList = applicantDao.getAllBookingList();
-			request.setAttribute("allBookingList", allBookingList);
-			RequestDispatcher dispatcher = request.getRequestDispatcher("BookingReport.jsp");
-			dispatcher.forward(request, response);
-		}
-		else if(url.equals("/detailedView")){
-			String appNo = request.getParameter("hdnRefNo");
-					
-			
+			List<Applicant> allBookingList = bookingDao.getAllBookingListPagination((page - 1) * recordsPerPage,
+							recordsPerPage);
+			int noOfRecords = bookingDao.getNumberOfRows();
+			System.out.println(noOfRecords);
+			int noOfPages = (int) Math.ceil(noOfRecords * 1.0 / recordsPerPage);
 
-				Applicant applicant;
-				try {
-					applicant = applicantDao.getApplicationById(appNo);
-					request.setAttribute("applicant", applicant);
-					RequestDispatcher dispatcher = request.getRequestDispatcher("DetailedView.jsp");
-					dispatcher.forward(request, response);
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			
-			
+			request.setAttribute("allBookingList", allBookingList);
+			request.setAttribute("noOfPages", noOfPages);
+			request.setAttribute("currentPage", page);
+			RequestDispatcher dispatcher = request
+					.getRequestDispatcher("BookingReportTest.jsp");
+			dispatcher.forward(request, response);
+		} else if (url.equals("/detailedView")) {
+			String appNo = request.getParameter("applicationNumber");
+
+//			Applicant applicant;
+			try {
+			Applicant	applicant = bookingDao.getApplicationById(appNo);
+				request.setAttribute("applicant", applicant);
+				RequestDispatcher dispatcher = request
+						.getRequestDispatcher("DetailViewT.jsp");
+				dispatcher.forward(request, response);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 
