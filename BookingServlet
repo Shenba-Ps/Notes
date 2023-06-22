@@ -13,82 +13,97 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 import com.spaceBooking.dao.BookingDao;
+import com.spaceBooking.dao.OicDao;
 import com.spaceBooking.model.Applicant;
 import com.spaceBooking.model.ConvertJSON;
 import com.spaceBooking.service.BookingService;
 
-
 @WebServlet("/BookingServlet")
 public class BookingServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
 
 	BookingService bookingService;
 	BookingDao bookingDao;
+	OicDao oicDao;
 
 	public BookingServlet() {
 		super();
 		this.bookingService = new BookingService();
 		this.bookingDao = new BookingDao();
+		this.oicDao = new OicDao();
 	}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-	
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+
 		doPost(request, response);
 	}
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		System.out.println("-------------------Ajax Servlet----------------------");
+		System.out
+				.println("-------------------Ajax Servlet----------------------");
 		JSONObject objResponseData = new JSONObject();
 		ConvertJSON objConvertJSON = new ConvertJSON();
 		Applicant applicantObj = new Applicant();
 
 		String strBodyData = request.getParameter("BodyData");
-		
+
 		JSONObject objBodyData = (JSONObject) JSONObject.parse(strBodyData);
-		
-		
-		
-		
 
-		String strAction = objConvertJSON.CJSON_S(objBodyData, "Action").toString();
-	 if (strAction.equals("Save Slots")) {
+		String strAction = objConvertJSON.CJSON_S(objBodyData, "Action")
+				.toString();
+		if (strAction.equals("Save Slots")) {
 
-         String applicationNumber =  bookingService.createApplicationNumber();
-			JSONArray jaBookingList = (JSONArray) objBodyData.get("BookingData");
+			String applicationNumber = bookingService.createApplicationNumber();
+			JSONArray jaBookingList = (JSONArray) objBodyData
+					.get("BookingData");
 			for (int i = 0; i < jaBookingList.size(); i++) {
 				applicantObj.setApplicationNumber(applicationNumber);
-				applicantObj.setName(objConvertJSON.CJSON_S(objBodyData, "Name"));
-				applicantObj.setAddress(objConvertJSON.CJSON_S(objBodyData, "Address"));
-				applicantObj.setNricNumber(objConvertJSON.CJSON_S(objBodyData, "NRIC"));
-				applicantObj.setEmail(objConvertJSON.CJSON_S(objBodyData, "Email"));
-				applicantObj.setUsageTrade(objConvertJSON.CJSON_S(objBodyData, "UsageTrade"));
-				applicantObj.setUsageTradeOthers(objConvertJSON.CJSON_S(objBodyData, "Others"));
-				applicantObj.setHomePhoneNumber(objConvertJSON.CJSON_S(objBodyData, "Mobile"));
-				applicantObj.setOfficePhoneNumber(objConvertJSON.CJSON_S(objBodyData, "OfficeTel"));
-				applicantObj.setHandPhoneNumber(objConvertJSON.CJSON_S(objBodyData, "HomeTel"));
-				applicantObj.setTotalAmount(Double.valueOf(objConvertJSON.CJSON_S(objBodyData, "TotalAmount")));
+				applicantObj.setName(objConvertJSON
+						.CJSON_S(objBodyData, "Name"));
+				applicantObj.setAddress(objConvertJSON.CJSON_S(objBodyData,
+						"Address"));
+				applicantObj.setNricNumber(objConvertJSON.CJSON_S(objBodyData,
+						"NRIC"));
+				applicantObj.setEmail(objConvertJSON.CJSON_S(objBodyData,
+						"Email"));
+				applicantObj.setUsageTrade(objConvertJSON.CJSON_S(objBodyData,
+						"UsageTrade"));
+				applicantObj.setUsageTradeOthers(objConvertJSON.CJSON_S(
+						objBodyData, "Others"));
+				applicantObj.setHomePhoneNumber(objConvertJSON.CJSON_S(
+						objBodyData, "Mobile"));
+				applicantObj.setOfficePhoneNumber(objConvertJSON.CJSON_S(
+						objBodyData, "OfficeTel"));
+				applicantObj.setHandPhoneNumber(objConvertJSON.CJSON_S(
+						objBodyData, "HomeTel"));
+				applicantObj.setTotalAmount(Double.valueOf(objConvertJSON
+						.CJSON_S(objBodyData, "TotalAmount")));
 				JSONObject objBookingData = (JSONObject) jaBookingList.get(i);
-				String strBookingDate = objConvertJSON.CJSON_S(objBookingData, "BookingDate").toString();
+				String strBookingDate = objConvertJSON.CJSON_S(objBookingData,
+						"BookingDate").toString();
 				Date datBookingDate = null;
 				try {
-					SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+					SimpleDateFormat formatter = new SimpleDateFormat(
+							"yyyy-MM-dd", Locale.ENGLISH);
 					datBookingDate = formatter.parse(strBookingDate);
 
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-				java.sql.Date convBookingDate = new java.sql.Date(datBookingDate.getTime());
+				java.sql.Date convBookingDate = new java.sql.Date(
+						datBookingDate.getTime());
 				int intMonth = datBookingDate.getMonth();
 				applicantObj.setBookingDate(convBookingDate.toString());
 				applicantObj.setBookingMonth(intMonth);
-				//Slots
+				// Slots
 				applicantObj.setL1s1("0");
 				applicantObj.setL1s2("0");
 				applicantObj.setL1s3("0");
@@ -120,7 +135,8 @@ public class BookingServlet extends HttpServlet {
 				applicantObj.setL2s9("0");
 				applicantObj.setL2s10("0");
 				int intUSCount = 0;
-				String strUserSelectedSlots = objConvertJSON.CJSON_S(objBookingData, "BookingSlot").toString();
+				String strUserSelectedSlots = objConvertJSON.CJSON_S(
+						objBookingData, "BookingSlot").toString();
 				String[] arrUserSelectedSlots = strUserSelectedSlots.split(",");
 				for (int j = 0; j < arrUserSelectedSlots.length; j++) {
 					String strSlot = arrUserSelectedSlots[j].toString();
@@ -187,33 +203,38 @@ public class BookingServlet extends HttpServlet {
 						applicantObj.setL2s10("1");
 					}
 				}
-				applicantObj.setSlectedSlots(objConvertJSON.CJSON_S(objBookingData, "BookingSlot").toString());
+				applicantObj.setSlectedSlots(objConvertJSON.CJSON_S(
+						objBookingData, "BookingSlot").toString());
 				applicantObj.setNoOfDaysBooked(intUSCount);
 				applicantObj.setOicComment("0");
 				bookingService.saveBookingDetailService(applicantObj);
-			} 
-			
-		}else if (strAction.equals("Fetch Slots")) {
-			applicantObj.setNricNumber(objConvertJSON.CJSON_S(objBodyData, "NRIC"));
-			String strBookingDate = objConvertJSON.CJSON_S(objBodyData, "Date").toString();
+			}
+
+		} else if (strAction.equals("Fetch Slots")) {
+			applicantObj.setNricNumber(objConvertJSON.CJSON_S(objBodyData,
+					"NRIC"));
+			String strBookingDate = objConvertJSON.CJSON_S(objBodyData, "Date")
+					.toString();
 			Date datBookingDate = null;
 			try {
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd",
+						Locale.ENGLISH);
 				datBookingDate = formatter.parse(strBookingDate);
 
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			java.sql.Date convBookingDate = new java.sql.Date(datBookingDate.getTime());
+			java.sql.Date convBookingDate = new java.sql.Date(
+					datBookingDate.getTime());
 			int intMonth = datBookingDate.getMonth();
 
-			List<Applicant> listOfUserByBookingDate = bookingDao.getListOfUserByBookingDate(convBookingDate,
-					applicantObj.getNricNumber());
+			List<Applicant> listOfUserByBookingDate = bookingDao.getListOfUserByBookingDate(convBookingDate,applicantObj.getNricNumber());
 			List<Applicant> listOfBookingDate = bookingDao.getListOfBookingDate(convBookingDate);
-			int intUserBookingCountForMonth = bookingDao.getBookingCountOfMonth(intMonth,
-					applicantObj.getNricNumber());
+			int intUserBookingCountForMonth = bookingDao.getBookingCountOfMonth(intMonth,applicantObj.getNricNumber());
 			System.out.println(intUserBookingCountForMonth);
-
+			int intUserBookingTimesForMonth = bookingDao.getBookingCountByNric(
+					intMonth, applicantObj.getNricNumber());
+			List<String> bookingDateList = bookingDao.getListOfBookingdate(applicantObj.getNricNumber());
 			String strUserSelectedSlotByDate = "";
 			for (Applicant app : listOfUserByBookingDate) {
 				if (app.getSlectedSlots() != null) {
@@ -232,10 +253,14 @@ public class BookingServlet extends HttpServlet {
 					strSelectedSlotByDate += app.getSlectedSlots();
 				}
 			}
-
-			objResponseData.put("UserBookingCountForMonth", intUserBookingCountForMonth);
+            ObjectMapper map = new ObjectMapper();
+            String bookingDateArray = map.writeValueAsString(bookingDateList);
+			objResponseData.put("UserBookingCountForMonth",intUserBookingCountForMonth);
+			objResponseData.put("UserBookingTimesForMonth",intUserBookingTimesForMonth);
 			objResponseData.put("UserBookingForDate", strUserSelectedSlotByDate);
 			objResponseData.put("SelectedSlotByDate", strSelectedSlotByDate);
+			objResponseData.put("LastFourBookingDates", bookingDateArray);
+
 		}
 
 		response.setContentType("application/json");
@@ -243,4 +268,4 @@ public class BookingServlet extends HttpServlet {
 		response.getWriter().write(objResponseData.toString());
 
 	}
-} 
+}
