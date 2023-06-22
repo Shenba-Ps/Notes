@@ -1,4 +1,4 @@
-package com.spacebooking.dao;
+package com.spaceBooking.dao;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -9,8 +9,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.spacebooking.database.DbConnection;
-import com.spacebooking.model.Applicant;
+import com.ibm.ws.websvcs.desc.DBUtils;
+import com.spaceBooking.database.DbConnection;
+import com.spaceBooking.model.Applicant;
 
 public class OicDao {
 
@@ -19,98 +20,31 @@ public class OicDao {
 	PreparedStatement preparedStatement = null;
 	ResultSet resultSet = null;
 	private int noOfRecords;
-	
-	public List<Applicant> getApplicationByApprovalStatus(String approvalStatus) throws SQLException {
-	List<Applicant> statusList = new ArrayList<>();
-	String selectQuery = "SELECT * FROM app.space_booking WHERE approval_status = ?";
-	try {
 
-		connection = new DbConnection().getConnection();
-		preparedStatement = connection.prepareStatement(selectQuery);
-		preparedStatement.setString(1, approvalStatus);
-		resultSet = preparedStatement.executeQuery();
-		while (resultSet.next()) {
-			Applicant ap = new Applicant();
-			ap.setApplicationNumber(resultSet.getString("application_number"));
-			ap.setName(resultSet.getString("name"));
-			ap.setAddress(resultSet.getString("address"));
-			ap.setNricNumber(resultSet.getString("nric_number"));
-			ap.setHomePhoneNumber(resultSet.getString("home_ph_no"));
-			ap.setOfficePhoneNumber(resultSet.getString("office_ph_no"));
-			ap.setHandPhoneNumber(resultSet.getString("hand_ph_no"));
-			ap.setEmail(resultSet.getString("email"));
-			ap.setUsageTrade(resultSet.getString("usage_trade"));
-			ap.setTotalAmount(resultSet.getDouble("total_amount"));
-			ap.setBookingDate(resultSet.getString("booking_date"));
-			ap.setL1s1(resultSet.getString("L1s1"));
-			ap.setL1s2(resultSet.getString("L1s2"));
-			ap.setL1s3(resultSet.getString("L1s3"));
-			ap.setL1s4(resultSet.getString("L1s4"));
-			ap.setL1s5(resultSet.getString("L1s5"));
-			ap.setL1s6(resultSet.getString("L1s6"));
-			ap.setL1s7(resultSet.getString("L1s7"));
-			ap.setL1s8(resultSet.getString("L1s8"));
-			ap.setL1s9(resultSet.getString("L1s9"));
-			ap.setL1s10(resultSet.getString("L1s10"));
-			ap.setL1s11(resultSet.getString("L1s11"));
-			ap.setL1s12(resultSet.getString("L1s12"));
-			ap.setL1s13(resultSet.getString("L1s13"));
-			ap.setL1s14(resultSet.getString("L1s14"));
-			ap.setL1s15(resultSet.getString("L1s15"));
-			ap.setL1s16(resultSet.getString("L1s16"));
-			ap.setL1s17(resultSet.getString("L1s17"));
-			ap.setL1s18(resultSet.getString("L1s18"));
-			ap.setL1s19(resultSet.getString("L1s19"));
-			ap.setL1s20(resultSet.getString("L1s20"));
-			ap.setL2s1(resultSet.getString("L2s1"));
-			ap.setL2s2(resultSet.getString("L2s2"));
-			ap.setL2s3(resultSet.getString("L2s3"));
-			ap.setL2s4(resultSet.getString("L2s4"));
-			ap.setL2s5(resultSet.getString("L2s5"));
-			ap.setL2s6(resultSet.getString("L2s6"));
-			ap.setL2s7(resultSet.getString("L2s7"));
-			ap.setL2s8(resultSet.getString("L2s8"));
-			ap.setL2s9(resultSet.getString("L2s9"));
-			ap.setL2s10(resultSet.getString("L2s10"));
-			ap.setNoOfDaysBooked(resultSet.getInt("no_of_days_booked"));
-			ap.setApprovalStatus(resultSet.getString("approval_status"));
-			ap.setOicComment(resultSet.getString("oic_comment"));
-			ap.setOicFollowUpdateTime(resultSet.getString("oic_followup_date_time"));
-			ap.setCreatedDate(resultSet.getString("created_date"));
-			ap.setCreatedDateTime(resultSet.getString("created_date_time"));
-            ap.setSlectedSlots(resultSet.getString("selected_slots"));
-			statusList.add(ap);
-		}
-	}catch (SQLException e) {
-		printSQLException(e);
-	} finally {
+	public List<Applicant> getApplicationByApprovalStatusPagination(
+			int currentPage, int recordsPerPage, String approvalStatus)
+			throws SQLException {
+		List<Applicant> statusList = new ArrayList<>();
+		String selectQuery = "SELECT * FROM app.space_booking\n";
+		String whereClause = "WHERE approval_status = ?";
+		String limitClause = "offset ? rows fetch first ? rows only";
+		String countQuery = "select count(*) from app.space_booking WHERE approval_status = ?";
 		try {
-			connection.close();
-			preparedStatement.close();
-			resultSet.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-	}
-	return statusList;
-}
-	public List<Applicant> getAllBookingList(int currentPage, int recordsPerPage) {
-
-		List<Applicant> listApplicant = new ArrayList<>();
-//		int start = currentPage * recordsPerPage - recordsPerPage;
-		 String sql = "SELECT SQL_CALC_FOUND_ROWS * FROM app.space_booking LIMIT "
-	        		+ currentPage + ", " + recordsPerPage;
-	        String count = "SELECT FOUND_ROWS()";
-	
-
-		try {
+			String statementStr = "";
+			statementStr += selectQuery;
+			statementStr += whereClause;
+			statementStr += limitClause;
 			connection = new DbConnection().getConnection();
-			preparedStatement = connection.prepareStatement(sql);
+			// connection.setAutoCommit(false);
+			preparedStatement = connection.prepareStatement(statementStr);
+			preparedStatement.setString(1, approvalStatus);
+			preparedStatement.setInt(2, currentPage);
+			preparedStatement.setInt(3, recordsPerPage);
 			resultSet = preparedStatement.executeQuery();
+			connection.commit();
 			while (resultSet.next()) {
-				Applicant ap = new Applicant();
-				ap.setApplicationNumber(resultSet.getString("application_number"));
+				Applicant ap = new Applicant();			
+				ap.setApplicationNumber(resultSet.getString("application_number"));			
 				ap.setName(resultSet.getString("name"));
 				ap.setAddress(resultSet.getString("address"));
 				ap.setNricNumber(resultSet.getString("nric_number"));
@@ -151,25 +85,124 @@ public class OicDao {
 				ap.setL2s8(resultSet.getString("L2s8"));
 				ap.setL2s9(resultSet.getString("L2s9"));
 				ap.setL2s10(resultSet.getString("L2s10"));
-				ap.setNoOfDaysBooked(Integer.parseInt(resultSet.getString("no_of_days_booked")));
+				ap.setNoOfDaysBooked(resultSet.getInt("no_of_days_booked"));
 				ap.setApprovalStatus(resultSet.getString("approval_status"));
 				ap.setOicComment(resultSet.getString("oic_comment"));
-				ap.setOicFollowUpdateTime(resultSet.getString("oic_followup_date_time"));
+				ap.setOicFollowUpdateTime(resultSet
+						.getString("oic_followup_date_time"));
 				ap.setCreatedDate(resultSet.getString("created_date"));
 				ap.setCreatedDateTime(resultSet.getString("created_date_time"));
-				ap.setBookingMonth(Integer.parseInt(resultSet.getString("booking_month")));
 				ap.setSlectedSlots(resultSet.getString("selected_slots"));
-				listApplicant.add(ap);
-
+				statusList.add(ap);
 			}
-//			resultSet.close();
-			preparedStatement = connection.prepareStatement(count);
+			
+			resultSet.close();
+			preparedStatement = connection.prepareStatement(countQuery);
+			preparedStatement.setString(1, approvalStatus);
 			resultSet = preparedStatement.executeQuery();
-			if(resultSet.next()) {
-			      this.noOfRecords = resultSet.getInt(1);
-   }
+			if (resultSet.next()) {
+				this.noOfRecords = resultSet.getInt(1);
+			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			printSQLException(e);
+			try {
+				if (connection != null)
+					connection.rollback();
+			} catch (SQLException se2) {
+				se2.printStackTrace();
+			}
+			try {
+				if (connection != null)
+					connection.rollback();
+			} catch (SQLException se2) {
+				se2.printStackTrace();
+			}
+		} finally {
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+
+				if (connection != null) {
+					connection.close();
+				}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return statusList;
+	}
+
+	public List<Applicant> getApplicationByApprovalStatus(String approvalStatus)
+			throws SQLException {
+		List<Applicant> statusList = new ArrayList<>();
+		String selectQuery = "SELECT * FROM space_booking WHERE approval_status = ?";
+		try {
+
+			connection = new DbConnection().getConnection();
+			preparedStatement = connection.prepareStatement(selectQuery);
+			preparedStatement.setString(1, approvalStatus);
+			resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				Applicant ap = new Applicant();
+				ap.setApplicationNumber(resultSet
+						.getString("application_number"));
+				ap.setName(resultSet.getString("name"));
+				ap.setAddress(resultSet.getString("address"));
+				ap.setNricNumber(resultSet.getString("nric_number"));
+				ap.setHomePhoneNumber(resultSet.getString("home_ph_no"));
+				ap.setOfficePhoneNumber(resultSet.getString("office_ph_no"));
+				ap.setHandPhoneNumber(resultSet.getString("hand_ph_no"));
+				ap.setEmail(resultSet.getString("email"));
+				ap.setUsageTrade(resultSet.getString("usage_trade"));
+				ap.setTotalAmount(resultSet.getDouble("total_amount"));
+				ap.setBookingDate(resultSet.getString("booking_date"));
+				ap.setL1s1(resultSet.getString("L1s1"));
+				ap.setL1s2(resultSet.getString("L1s2"));
+				ap.setL1s3(resultSet.getString("L1s3"));
+				ap.setL1s4(resultSet.getString("L1s4"));
+				ap.setL1s5(resultSet.getString("L1s5"));
+				ap.setL1s6(resultSet.getString("L1s6"));
+				ap.setL1s7(resultSet.getString("L1s7"));
+				ap.setL1s8(resultSet.getString("L1s8"));
+				ap.setL1s9(resultSet.getString("L1s9"));
+				ap.setL1s10(resultSet.getString("L1s10"));
+				ap.setL1s11(resultSet.getString("L1s11"));
+				ap.setL1s12(resultSet.getString("L1s12"));
+				ap.setL1s13(resultSet.getString("L1s13"));
+				ap.setL1s14(resultSet.getString("L1s14"));
+				ap.setL1s15(resultSet.getString("L1s15"));
+				ap.setL1s16(resultSet.getString("L1s16"));
+				ap.setL1s17(resultSet.getString("L1s17"));
+				ap.setL1s18(resultSet.getString("L1s18"));
+				ap.setL1s19(resultSet.getString("L1s19"));
+				ap.setL1s20(resultSet.getString("L1s20"));
+				ap.setL2s1(resultSet.getString("L2s1"));
+				ap.setL2s2(resultSet.getString("L2s2"));
+				ap.setL2s3(resultSet.getString("L2s3"));
+				ap.setL2s4(resultSet.getString("L2s4"));
+				ap.setL2s5(resultSet.getString("L2s5"));
+				ap.setL2s6(resultSet.getString("L2s6"));
+				ap.setL2s7(resultSet.getString("L2s7"));
+				ap.setL2s8(resultSet.getString("L2s8"));
+				ap.setL2s9(resultSet.getString("L2s9"));
+				ap.setL2s10(resultSet.getString("L2s10"));
+				ap.setNoOfDaysBooked(resultSet.getInt("no_of_days_booked"));
+				ap.setApprovalStatus(resultSet.getString("approval_status"));
+				ap.setOicComment(resultSet.getString("oic_comment"));
+				ap.setOicFollowUpdateTime(resultSet
+						.getString("oic_followup_date_time"));
+				ap.setCreatedDate(resultSet.getString("created_date"));
+				ap.setCreatedDateTime(resultSet.getString("created_date_time"));
+				ap.setSlectedSlots(resultSet.getString("selected_slots"));
+				statusList.add(ap);
+			}
+		} catch (SQLException e) {
+			printSQLException(e);
 		} finally {
 			try {
 				connection.close();
@@ -180,10 +213,115 @@ public class OicDao {
 			}
 
 		}
-		System.out.println(count);
-		return listApplicant;
+		return statusList;
 	}
-	
+
+	public Integer getNumberOfRows() {
+
+		return noOfRecords;
+	}
+
+	public int updateAppStatus(Applicant applicantObj, Date oicFollowUpdate) {
+
+		int count = 0;
+
+		String updateQueryTest = "UPDATE app.space_booking set  oic_comment = ?,oic_followup_date_time = ?,approval_status = ? where application_number = ? ";
+		try {
+			connection = new DbConnection().getConnection();
+			connection.setAutoCommit(false);
+			preparedStatement = connection.prepareStatement(updateQueryTest);
+			preparedStatement.setString(1, applicantObj.getOicComment());
+			preparedStatement.setDate(2, oicFollowUpdate);
+			preparedStatement.setString(3, applicantObj.getApprovalStatus());
+			preparedStatement.setString(4, applicantObj.getApplicationNumber());
+			count = preparedStatement.executeUpdate();
+			connection.commit();
+			if (count > 0) {
+				System.out.println("upadted");
+			} else {
+				System.out.println("failed");
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			try {
+				if (connection != null)
+					connection.rollback();
+			} catch (SQLException se2) {
+				se2.printStackTrace();
+			}
+		} finally {
+
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+
+				if (connection != null) {
+					connection.close();
+				}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return count;
+
+	}
+
+	public int updateApprovalStatus(Applicant applicant, Date oicFollowUpdate) {
+		int count = 0;
+		String updateQueryTest = "UPDATE app.space_booking set  oic_followup_date_time = ?,approval_status = ? where application_number = ? ";
+		try {
+			connection = new DbConnection().getConnection();
+			connection.setAutoCommit(false);
+			preparedStatement = connection.prepareStatement(updateQueryTest);
+			preparedStatement.setDate(1, oicFollowUpdate);
+			preparedStatement.setString(2, applicant.getApprovalStatus());
+			preparedStatement.setString(3, applicant.getApplicationNumber());
+			count = preparedStatement.executeUpdate();
+			connection.commit();
+			if (count > 0) {
+				System.out.println("upadted");
+			} else {
+				System.out.println("failed");
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			try {
+				if (connection != null)
+					connection.rollback();
+			} catch (SQLException se2) {
+				se2.printStackTrace();
+			}
+
+		} finally {
+
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+				if (preparedStatement != null) {
+					preparedStatement.close();
+				}
+
+				if (connection != null) {
+					connection.close();
+				}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return count;
+	}
+
 	private void printSQLException(SQLException ex) {
 		for (Throwable e : ex) {
 			if (e instanceof SQLException) {
@@ -200,77 +338,6 @@ public class OicDao {
 				}
 			}
 		}
-	}
-	
-	public Integer getNumberOfRows() {
-
-        return noOfRecords;
-    }
-	
-	
-	public int updateAppStatus(Applicant applicantObj, Date oicFollowUpdate) {
-		
-		int count = 0;
-		
-		String updateQueryTest = "UPDATE app.space_booking set  oic_comment = ?,oic_followup_date_time = ?,approval_status = ? where application_number = ? ";
-		try {
-			connection = new DbConnection().getConnection();
-			preparedStatement = connection.prepareStatement(updateQueryTest);
-			preparedStatement.setString(1, applicantObj.getOicComment());
-			preparedStatement.setDate(2, oicFollowUpdate);
-			preparedStatement.setString(3, applicantObj.getApprovalStatus());
-			preparedStatement.setString(4, applicantObj.getApplicationNumber());
-			count = preparedStatement.executeUpdate();
-			if(count > 0) {
-				System.out.println("upadted");
-			}else {
-				System.out.println("failed");
-			}
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}finally {
-			try {
-				connection.close();
-				preparedStatement.close();
-				resultSet.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	
-		return count;
-		
-	}
-	public int updateApprovalStatus(Applicant applicant, Date oicFollowUpdate) {
-		int count = 0;
-		String updateQueryTest = "UPDATE app.space_booking set  oic_followup_date_time = ?,approval_status = ? where application_number = ? ";
-		try {
-			connection = new DbConnection().getConnection();
-			preparedStatement = connection.prepareStatement(updateQueryTest);
-			preparedStatement.setDate(1, oicFollowUpdate);
-			preparedStatement.setString(2, applicant.getApprovalStatus());
-			preparedStatement.setString(3, applicant.getApplicationNumber());
-			count = preparedStatement.executeUpdate();
-			if(count > 0) {
-				System.out.println("upadted");
-			}else {
-				System.out.println("failed");
-			}
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}finally {
-			try {
-				connection.close();
-				preparedStatement.close();
-				resultSet.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	
-		return count;
 	}
 	
 
