@@ -1,0 +1,98 @@
+<!DOCTYPE HTML><%@page language="java"
+	contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<html>
+<head>
+<title>DetailViewT</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<script src="Plugins/jQuery.js"></script>
+</head>
+<body>
+	<form >
+		<c:forEach var="applicant" items="${applicant}" varStatus="counter">
+			<div>
+				<div class="ColorLabel">
+					Record<input value="${counter.count}" style="width: 30px;" disabled>
+				</div>
+				<table class="CallerDetail"
+					style="width: 100%; border-radius: 20px;">
+					<tr>
+						<td style="padding-left: 50px; padding-top: 20px;"><label
+							style="padding-right: 40px;">Application No</label> <input
+							type="text" id="idRName" style="width: 250px;"
+							value="${applicant.applicationNumber}" disabled></td>
+						<td style="padding-left: 50px;"><label
+							style="padding-right: 10px;">Name</label> <input type="text"
+							id="idRHome" value="${applicant.name}" style="width: 100px;"
+							disabled></td>
+					</tr>
+					<tr>
+						<td style="padding-left: 50px; padding-top: 20px;"><label
+							style="padding-right: 20px;">Address</label><input type="text"
+							id="idROffice" style="width: 100px;" disabled
+							value="${applicant.address}"></td>
+						<td style="padding-left: 50px;"><label
+							style="padding-right: 10px;">NRIC</label> <input type="text"
+							id="idROffice" style="width: 100px;" disabled
+							value="${applicant.nricNumber}"></td>
+					</tr>
+					<tr>
+						<td style="padding-left: 50px;"><label
+							style="padding-right: 50px;">Email</label> <input name="ICType"
+							id="idRICType" value="${applicant.email}" disabled
+							style="width: 60px;"></td>
+						<td style="padding-left: 50px;"><label
+							style="padding-right: 30px;">Usage Trade</label> <input
+							type="text" id="idRHP" style="width: 100px;" disabled
+							value="${applicant.usageTrade}"></td>
+					</tr>
+					<tr>
+						<td style="padding-left: 50px;"><label
+							style="padding-right: 30px;">Usage Trade Others</label> <input type="text"
+							id="idRPG" style="width: 100px;" disabled value="${applicant.usageTradeOthers}"></td>
+						<td style="padding-left: 50px;"><label
+							style="padding-right: 30px;">Office</label> <input type="text"
+							id="idRPG" style="width: 100px;" disabled value="${applicant.officePhoneNumber}"></td>
+					</tr>
+					<tr>
+						<td style="padding-left: 50px; padding-bottom: 20px;"><label
+							style="padding-right: 30px;">Hand</label> <input type="text"
+							id="idREmail" value="${applicant.handPhoneNumber}" style="width: 250px;"
+							disabled></td>
+
+						<td style="padding-left: 50px; padding-bottom: 20px;"><label
+							style="padding-right: 26px;">Home</label> <input type="text"
+							id="idRFax" style="width: 100px;" disabled
+							value="${applicant.homePhoneNumber}"></td>
+
+					</tr>
+					<tr>
+						<td style="padding-left: 50px; padding-bottom: 20px;"><label
+							style="padding-right: 30px;">Booking Date</label> <input
+							type="text" id="iddateTime" value="${applicant.bookingDate}"
+							style="width: 250px;" disabled></td>
+						<td style="padding-left: 50px; padding-bottom: 20px;"><label
+							style="padding-right: 30px;">Approval Status</label> <input
+							type="text" id="iddateTime" value="${applicant.approvalStatus}"
+							style="width: 250px;" disabled></td>
+
+					</tr>
+					<tr>
+						<td style="padding-left: 50px; padding-bottom: 20px;"><label
+							style="padding-right: 30px;">No of Slots Booked</label> <input
+							type="text" id="iddateTime" value="${applicant.noOfDaysBooked}"
+							style="width: 250px;" disabled></td>
+
+						<td style="padding-left: 50px; padding-bottom: 20px;"><label
+							style="padding-right: 26px;">Total Amount</label> <input
+							type="text" id="idRFax" style="width: 100px;" disabled
+							value="${applicant.totalAmount}"></td>
+
+
+					</tr>
+				</table>
+			</div>
+		</c:forEach>
+	</form>
+</body>
+</html>
