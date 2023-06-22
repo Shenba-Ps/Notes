@@ -1,0 +1,215 @@
+package com.spaceBooking.dao;
+
+
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import com.spaceBooking.database.DbConnection;
+
+public class TestCodeDao {
+
+	Connection connection = null;
+	Statement st = null;
+	PreparedStatement preparedStatement = null;
+	ResultSet resultSet = null;
+	
+	public int insertCallLogInformation( String name, String applicationNumber,Date date)
+			throws SQLException {
+        String email = "tnd@gmail.com";
+//        Date strdate= '2023-06-30';
+		int result = 0;
+		String insertQuery = "insert into app.test(name,app_no,email,created_date) "
+				+ "values(?,?,?,?)";
+		try {
+			connection = new DbConnection().getConnection();
+			preparedStatement = connection.prepareStatement(insertQuery);
+			preparedStatement.setString(1, name);	
+			preparedStatement.setString(2, applicationNumber);
+			preparedStatement.setString(3, email);
+			preparedStatement.setDate(4, date);
+		
+			System.out.println(applicationNumber +" "+ date);
+			result = preparedStatement.executeUpdate();
+			if (result > 0) {
+				System.out.println("Successfully inserted into table");
+			} else {
+				System.out.println("Error while inserting into table");
+			}
+
+		} catch (SQLException e) {
+			printSQLException(e);
+
+		} finally {
+			try {
+				connection.close();
+				preparedStatement.close();
+			} catch (SQLException e) {
+				System.out.println(e);
+				e.printStackTrace();
+			}
+
+		}
+		return result;
+	}
+	
+	
+	public int getBookingCountOfTheCurrentMonth(Date monthStratDate,Date monthEndDate,String email){
+		String selectQuery = "select count(*) from app.test where created_date >= ? and created_date <= ? and email = ?";
+		int count = 0;
+		try {
+			connection = new DbConnection().getConnection();
+			preparedStatement = connection.prepareStatement(selectQuery);
+			preparedStatement.setDate(1, monthStratDate);
+			preparedStatement.setDate(2, monthEndDate);
+			preparedStatement.setString(3, email);
+			resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+			count = resultSet.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println(count);
+		return count;
+	}
+	
+	public long getCount(){
+		long count = 0 ;
+		String query = "select count(*) from app.test";
+		
+		try {
+			connection = new DbConnection().getConnection();
+			preparedStatement = connection.prepareStatement(query);
+			resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				count = resultSet.getLong(1);
+				System.out.println(count);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return count;
+		
+	}
+	
+	private void printSQLException(SQLException ex) {
+		for (Throwable e : ex) {
+			if (e instanceof SQLException) {
+				e.printStackTrace(System.err);
+				System.err.println("SQLState: "
+						+ ((SQLException) e).getSQLState());
+				System.err.println("Error Code: "
+						+ ((SQLException) e).getErrorCode());
+				System.err.println("Message: " + e.getMessage());
+				Throwable t = ex.getCause();
+				while (t != null) {
+					System.out.println("Cause: " + t);
+					t = t.getCause();
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+public void createDb() throws SQLException {
+		
+		connection = new DbConnection().getConnection();
+		try {
+			st = connection.createStatement();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+String createTableBooking =		"CREATE TABLE app.space_booking (id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),"
+		+ " application_number VARCHAR(100) NOT NULL, "
+		+ "name VARCHAR(50) DEFAULT NULL,"
+		+ "address VARCHAR (200) DEFAULT NULL,"
+		+ "nric_number VARCHAR(20) DEFAULT NULL,"
+		+ "email VARCHAR (50) DEFAULT NULL,"
+		+ "home_ph_no VARCHAR (10) DEFAULT NULL,"
+		+ "office_ph_no VARCHAR (10) DEFAULT NULL,"
+		+ "hand_ph_no VARCHAR (10) DEFAULT NULL,"
+		+ "usage_trade varchar(50) DEFAULT NULL,"
+		+ "usage_trade_others varchar(50) DEFAULT NULL,"
+		+ "total_amount DOUBLE  DEFAULT NULL,"
+		+ "booking_date DATE DEFAULT NULL,"
+		+ "L1s1 VARCHAR (20) DEFAULT NULL,L1s2 VARCHAR (20) DEFAULT NULL,L1s3 VARCHAR (20) DEFAULT NULL,"
+		+ "L1s4 VARCHAR (20) DEFAULT NULL,L1s5 VARCHAR (20) DEFAULT NULL,L1s6 VARCHAR (20) DEFAULT NULL,"
+		+ "L1s7 VARCHAR (20) DEFAULT NULL,L1s8 VARCHAR (20) DEFAULT NULL,L1s9 VARCHAR (20) DEFAULT NULL,"
+		+ "L1s10 VARCHAR (20) DEFAULT NULL,L1s11 VARCHAR (20) DEFAULT NULL,L1s12 VARCHAR (20) DEFAULT NULL,"
+		+ "L1s13 VARCHAR(20) DEFAULT NULL,L1s14 VARCHAR(20) DEFAULT NULL,L1s15 VARCHAR(20) DEFAULT NULL,"
+		+ "L1s16 VARCHAR(20) DEFAULT NULL,L1s17 VARCHAR(20) DEFAULT NULL,L1s18 VARCHAR(20) DEFAULT NULL,"
+		+ "L1s19 VARCHAR(20) DEFAULT NULL,L1s20 VARCHAR(20) DEFAULT NULL,L2s1 VARCHAR(20) DEFAULT NULL,"
+		+ "L2s2 VARCHAR(20) DEFAULT NULL,L2s3 VARCHAR(20) DEFAULT NULL,L2s4 VARCHAR(20) DEFAULT NULL,"
+		+ "L2s5 VARCHAR(20) DEFAULT NULL,L2s6 VARCHAR(20) DEFAULT NULL,L2s7 VARCHAR(20) DEFAULT NULL,"
+		+ "L2s8 VARCHAR(20) DEFAULT NULL,L2s9 VARCHAR(20) DEFAULT NULL,L2s10 VARCHAR(20) DEFAULT NULL,"
+		+ "no_of_days_booked VARCHAR (20) DEFAULT NULL,"
+		+ "approval_status VARCHAR (20) DEFAULT NULL,"
+		+ "oic_comment VARCHAR (1000) DEFAULT NULL,"
+		+ "oic_followup_date_time DATE DEFAULT NULL,"
+		+ "booking_month int DEFAULT NULL,"
+		+ "created_date DATE DEFAULT NULL,"
+		+ "created_date_time TIMESTAMP DEFAULT NULL,"
+		+ "selected_slots varchar(100) NOT NULL,"
+		+ "PRIMARY KEY (id))";
+String createApplicationTable = "create table app.application_no(application_number VARCHAR(100) NOT NULL, created_date DATE DEFAULT NULL)";
+	String createtestTableQuery =	"create table app.test(id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),name varchar(20),PRIMARY KEY (id))";
+		String query = " CREATE TABLE app.call_logs ( id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), "
+				+ "name varchar(50) DEFAULT NULL,"
+				+ "block varchar(20) DEFAULT NULL,"
+				+ "address varchar (50) DEFAULT NULL,"
+				+ "door_number varchar(10) DEFAULT NULL,"
+				+ "unit_number varchar(10) DEFAULT NULL,"
+				+ "postalcode varchar(10) DEFAULT NULL,"
+				+ "ic_type varchar(20) DEFAULT NULL,"
+				+ "ic_number varchar(20) DEFAULT NULL,"
+				+ "email varchar (50) DEFAULT NULL,"
+				+ "home_ph_no varchar (10) DEFAULT NULL,"
+				+ "office_ph_no varchar (10) DEFAULT NULL,"
+				+ "hand_ph_no varchar (10) DEFAULT NULL,"
+				+ "pg varchar (10) DEFAULT NULL,"
+				+ "fax varchar (10) DEFAULT NULL,"
+				+ "nature_of_enquiry varchar(50)  DEFAULT NULL,"
+				+ "name_of_enquiry varchar (50) DEFAULT NULL,"
+				+ "type_of_enquiry varchar (50) DEFAULT NULL,"
+				+ "enquiry_comments varchar (500) DEFAULT NULL,"
+				+ "oic varchar (20) DEFAULT NULL,"
+				+ "rating varchar (10) DEFAULT NULL,"
+				+ "rating_type varchar (10) DEFAULT NULL,"
+				+ "details_of_encounter varchar (500) DEFAULT NULL,"
+				+ "created_date DATE DEFAULT NULL,"
+				+ "created_date_time timestamp DEFAULT NULL,"
+				+ "PRIMARY KEY (id)" + ")";
+
+      String insertQuery = "insert into app.test(name) "
+				+ "values('test')";
+		String alterQuery = "ALTER TABLE app.test ADD email VARCHAR(50) DEFAULT NULL";
+		String dropQuery = "drop table app.space_booking";
+		int rows;
+		try {
+			rows = st.executeUpdate(createApplicationTable);
+			if (rows > 0) {
+				System.out.println("Table successfully created");
+			}else{
+				System.out.println("Failed to create");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			st.close();
+			connection.close();
+		
+		}
+}
+}
